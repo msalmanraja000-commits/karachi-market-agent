@@ -37,8 +37,7 @@ if prompt := st.chat_input("Kiska rate chahiye?"):
                 try:
                     # 1. Search
                     tavily = TavilyClient(api_key=t_key)
-                    search = tavily.search(query=f"{prompt} price in Karachi 2026", max_results=3)
-                    
+search_result = tavily.search(query=f"{prompt} latest official price in Karachi today", max_results=5)                    
                     # 2. AI Response
                     client = Groq(api_key=g_key)
                     response = client.chat.completions.create(
