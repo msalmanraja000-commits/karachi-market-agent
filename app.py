@@ -33,22 +33,24 @@ if prompt := st.chat_input("Kiska rate chahiye?"):
         st.error("Pehle sidebar mein Keys dalein!")
     else:
         with st.chat_message("assistant"):
-            with st.spinner("Market check ho rahi hai..."):
+            with st.spinner("Latest market rate check ho raha hai..."):
                 try:
-                    # 1. Search
+                    # 1. Search (Updated to get CURRENT rates)
                     tavily = TavilyClient(api_key=t_key)
-search_result = tavily.search(query=f"{prompt} latest official price in Karachi today", max_results=5)                    
-                    # 2. AI Response
+                    search = tavily.search(query=f"current official price of {prompt} in Karachi today", max_results=5)
+                    
+                    # 2. AI Brain
                     client = Groq(api_key=g_key)
                     response = client.chat.completions.create(
                         model="llama-3.3-70b-versatile",
                         messages=[
-                            {"role": "system", "content": "You are a Karachi market expert. Use the search data to help the user. Speak Roman Urdu."},
-                            *st.session_state.messages
+                            {"role": "system", "content": "You are a Karachi market expert. Always give the LATEST price from the search data. Respond in Roman Urdu."},
+                            *st.session_state.messages,
+                            {"role": "user", "content": f"Live Data: {search['results']}"}
                         ]
                     )
                     full_response = response.choices[0].message.content
                     st.markdown(full_response)
                     st.session_state.messages.append({"role": "assistant", "content": full_response})
                 except Exception as e:
-                    st.error(f"Masla aa gaya: {e}")
+                    st.error(f"Oho! Error aa gaya: {e}")
